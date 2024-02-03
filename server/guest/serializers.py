@@ -1,8 +1,4 @@
-from io import BytesIO
-import qrcode
-from django.core.files import File
 from rest_framework import serializers
-from datetime import datetime, timedelta
 from django.utils import timezone
 
 from events.serializers import *
@@ -35,27 +31,6 @@ class NewGuestDataSerializer(serializers.ModelSerializer):
             event = Event.objects.get(title=event_title)
             guest.events_attended.add(event)
             event_info = EventSerializer(event).data
-
-            # Генерация QR-кода
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
-            )
-            qr.add_data(f'Guest: {guest.id}, Event: {event.id}')
-            qr.make(fit=True)
-
-            img = qr.make_image(fill_color="black", back_color="white")
-            img_io = BytesIO()
-            img.save(img_io, format='PNG')
-            img_io.seek(0)
-
-            # Создание объекта Code
-            identifier = get_random_string()  # Ваш метод для генерации уникального идентификатора
-            code = Code(guest=guest, event=event, identifier=identifier)
-            code.code.save(f'qr_code_{identifier}.png', File(img_io), save=False)
-            code.save()
 
         return {'guest': guest, 'event': event_info}
     

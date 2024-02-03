@@ -20,7 +20,6 @@ router.register(r'new-registration', NewRegistrationViewSet, basename='new-regis
 router.register(r'existing-registration', ExistingRegistrationViewSet, basename='existing-registration')
 
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include(router.urls)),

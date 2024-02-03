@@ -1,13 +1,6 @@
-import json
-import qrcode
+from datetime import datetime, timedelta
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from io import BytesIO
-from PIL import Image
-from django.core.files import File
-from django.core.files.base import ContentFile
-import base64
-from io import BytesIO
 
 from .models import *
 from qrcode.models import *

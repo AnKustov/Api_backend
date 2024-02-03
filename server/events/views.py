@@ -1,6 +1,5 @@
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.decorators import action
 
 from guest.serializers import *
 from .models import *
