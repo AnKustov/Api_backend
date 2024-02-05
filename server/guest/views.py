@@ -4,7 +4,9 @@ from rest_framework.response import Response
 
 from .models import *
 from qrcode.models import *
+from events.models import *
 from .serializers import *
+from qrcode.utils import generate_and_save_qr_code
 
 
 class NewRegistrationViewSet(viewsets.ModelViewSet):
@@ -33,11 +35,24 @@ class NewRegistrationViewSet(viewsets.ModelViewSet):
 
         result = serializer.save()
 
+        # Генерация QR-кода
+        guest = result.get('guest') 
+        event = Event.objects.get(title=event_title)  
+        additional_data = {
+            "full_name": result['guest'].full_name,
+            "tg_login": result['guest'].tg_login,
+            "company": result['guest'].company,
+            "position": result['guest'].position,
+            "event_date": event.date.strftime("%Y-%m-%d")          
+            }
+        qr_code = generate_and_save_qr_code(guest, event, additional_data)
+
         # Формирование ответа с информацией о госте и событии
         response_data = {
             'guest': NewGuestDataSerializer(result['guest']).data,
-            'event': result.get('event', None)
+            'qr_code_url': qr_code.qr_code_image.url
         }
+        response_data['qr_code_url'] = qr_code.qr_code_image.url
 
         return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -73,13 +88,21 @@ class ExistingRegistrationViewSet(viewsets.ModelViewSet):
         try:
             guest.events_attended.add(event)
             guest.save()
-            return Response({'message': 'Guest updated successfully'})
+
+            # Генерация QR-кода
+            qr_code = generate_and_save_qr_code(guest, event)
+
+            response_data = {
+                'message': 'Guest updated successfully',
+                'qr_code_url': qr_code.qr_code_image.url  
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
         
-
 
 

@@ -57,13 +57,3 @@ class ExistingGuestDataSerializer(serializers.ModelSerializer):
             event_info = EventSerializer(event).data
 
         return {'guest': instance, 'event': event_info}
-
-
-
-
-
-
-
-
-
-
