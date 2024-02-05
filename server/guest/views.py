@@ -73,7 +73,6 @@ class ExistingRegistrationViewSet(viewsets.ModelViewSet):
         try:
             event = Event.objects.get(title=event_title)
         except Event.DoesNotExist:
-            # Дополнительная проверка для диагностики
             return Response({'error': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
         
         # Проверяем, осталось ли более 48 часов до начала мероприятия
@@ -90,7 +89,14 @@ class ExistingRegistrationViewSet(viewsets.ModelViewSet):
             guest.save()
 
             # Генерация QR-кода
-            qr_code = generate_and_save_qr_code(guest, event)
+            additional_data = {
+                "full_name": guest.full_name,
+                "tg_login": guest.tg_login,
+                "company": guest.company,
+                "position": guest.position,
+                "event_date": event.date.strftime("%Y-%m-%d")          
+                }
+            qr_code = generate_and_save_qr_code(guest, event, additional_data)
 
             response_data = {
                 'message': 'Guest updated successfully',

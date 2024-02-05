@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 from events.views import *
 from member.views import *
 from guest.views import *
+from qrcode.views import *
 
 
 router = DefaultRouter()
@@ -18,6 +19,7 @@ router.register(r'location_images', LocationImageViewSet)
 router.register(r'members', MemberViewSet)
 router.register(r'new-registration', NewRegistrationViewSet, basename='new-registration')
 router.register(r'existing-registration', ExistingRegistrationViewSet, basename='existing-registration')
+router.register(r'qrcodes', QRCodeViewSet)
 
 
 urlpatterns = [
