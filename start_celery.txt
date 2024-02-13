@@ -1,7 +1,0 @@
-celery -A projectx worker --loglevel=info
-celery -A projectx beat --loglevel=info
-
-
-sudo systemctl start rabbitmq-server
-sudo rabbitmq-plugins enable rabbitmq_management
-

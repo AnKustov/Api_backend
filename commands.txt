@@ -1,0 +1,29 @@
+celery -A projectx worker --loglevel=info
+celery -A projectx beat --loglevel=info
+
+
+sudo systemctl start rabbitmq-server
+sudo rabbitmq-plugins enable rabbitmq_management
+
+
+****************************************************
+sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+
+sudo apt-get update
+
+sudo apt-get -y install postgresql
+****************************************************
+
+pgAdmin
+https://pgadmin-archive.postgresql.org/pgadmin4/v8.3/pip/index.html
+pip install pgadmin4-8.3-py3-none-any.whl
+
+if error:
+sudo mkdir /var/lib/pgadmin
+sudo chown user:user /var/lib/pgadmin
+
+sudo mkdir /var/log/pgadmin
+sudo chown user:user /var/log/pgadmin
+
