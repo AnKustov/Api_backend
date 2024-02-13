@@ -13,6 +13,9 @@ class NewRegistrationViewSet(viewsets.ModelViewSet):
     queryset = GuestData.objects.all()
     serializer_class = NewGuestDataSerializer
 
+    def calculate_age(self, born):
+        today = date.today()
+        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -23,6 +26,12 @@ class NewRegistrationViewSet(viewsets.ModelViewSet):
             event = Event.objects.get(title=event_title)
         except Event.DoesNotExist:
             return Response({'error': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Добавляем проверку возраста гостя перед регистрацией
+        guest_birth_date = serializer.validated_data.get('birth_date')
+        guest_age = self.calculate_age(guest_birth_date)
+        if guest_age < event.age_restriction:
+            return Response({'error': f'Guest must be at least {event.age_restriction} years old to attend this event.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Проверяем, осталось ли более 48 часов до начала мероприятия
         event_start = timezone.make_aware(datetime.combine(event.date, event.time))
@@ -37,12 +46,9 @@ class NewRegistrationViewSet(viewsets.ModelViewSet):
 
         # Генерация QR-кода
         guest = result.get('guest') 
-        event = Event.objects.get(title=event_title)  
         additional_data = {
             "full_name": result['guest'].full_name,
             "tg_login": result['guest'].tg_login,
-            "company": result['guest'].company,
-            "position": result['guest'].position,
             "event_date": event.date.strftime("%Y-%m-%d")          
             }
         qr_code = generate_and_save_qr_code(guest, event, additional_data)
@@ -92,8 +98,6 @@ class ExistingRegistrationViewSet(viewsets.ModelViewSet):
             additional_data = {
                 "full_name": guest.full_name,
                 "tg_login": guest.tg_login,
-                "company": guest.company,
-                "position": guest.position,
                 "event_date": event.date.strftime("%Y-%m-%d")          
                 }
             qr_code = generate_and_save_qr_code(guest, event, additional_data)
