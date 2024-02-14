@@ -1,4 +1,4 @@
-celery -A projectx worker --loglevel=info
+celery -A projectx worker --loglevel=info --pool=eventlet --concurrency=10
 celery -A projectx beat --loglevel=info
 
 
@@ -26,4 +26,25 @@ sudo chown user:user /var/lib/pgadmin
 
 sudo mkdir /var/log/pgadmin
 sudo chown user:user /var/log/pgadmin
+
+********************************************************
+Supervisor
+
+/etc/supervisor/conf.d/  - > celery_projectx.conf:
+
+[program:celery_projectx]
+command=/path/to/venv/bin/celery -A projectx worker --loglevel=info --pool=eventlet --concurrency=10
+directory=/path/to/projectx
+user=username
+numprocs=1
+stdout_logfile=/path/to/logs/celery_worker.log
+stderr_logfile=/path/to/logs/celery_worker_err.log
+autostart=true
+autorestart=true
+startsecs=10
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start celery_projectx
+sudo supervisorctl stop celery_projectx
 

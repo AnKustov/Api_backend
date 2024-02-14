@@ -1,3 +1,4 @@
+from datetime import timedelta
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -14,6 +15,13 @@ ALLOWED_HOSTS = []
 
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+CELERY_BEAT_SCHEDULE = {
+    'delete-expired-qr-codes': {
+        'task': 'qrcode.tasks.delete_expired_qr_codes',
+        'schedule': timedelta(hours=24),
+    },
+}
 
 INSTALLED_APPS = [
     'rest_framework',

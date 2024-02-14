@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
+from qrcode.tasks import register_guest_for_event
 from .models import *
 from qrcode.models import *
 from events.models import *
@@ -60,6 +61,8 @@ class NewRegistrationViewSet(viewsets.ModelViewSet):
         }
         response_data['qr_code_url'] = qr_code.qr_code_image.url
 
+        register_guest_for_event.delay(guest.id, event_title)
+
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
@@ -106,6 +109,8 @@ class ExistingRegistrationViewSet(viewsets.ModelViewSet):
                 'message': 'Guest updated successfully',
                 'qr_code_url': qr_code.qr_code_image.url  
             }
+
+            register_guest_for_event.delay(guest.id, event_title)
 
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
